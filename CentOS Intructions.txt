@@ -1,0 +1,44 @@
+# Language
+export LC_ALL="en_US.UTF-8"
+export LC_CTYPE="en_US.UTF-8"
+
+# Install SSH
+sudo dnf install openssh-server
+sudo systemctl start sshd
+sudo systemctl enable sshd
+sudo systemctl status sshd
+sudo firewall-cmd --zone=public --permanent --add-service=ssh
+sudo firewall-cmd --zone=public --permanent --add-service=http
+sudo firewall-cmd --zone=public --permanent --add-service=https
+sudo firewall-cmd --zone=public --permanent --add-port=25565/tcp
+sudo firewall-cmd --reload
+
+# SSH Changes
+# Make /etc/ssh/sshd_config changes 
+# PasswordAuthentication no
+# PubkeyAuthentication yes
+sudo systemctl reload sshd
+
+# Add auth keys
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG/1al8nkr5TVKUxaZjlZJLk8AJo2IBE5eszCo7Qed8w jhuacmofficers@gmail.com" >> ~/.ssh/authorized_keys
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILBHtvTlZOnyZuBhGAhudYp8qqSP3lS9rknFsHi8czP5 alex.chaulot@gmail.com" >> ~/.ssh/authorized_keys
+chmod 700 ~/.ssh/
+chmod 600 ~/.ssh/authorized_keys
+chown $USER:$USER ~/.ssh/ -R
+sudo systemctl reload sshd
+
+# Install Certbot
+sudo dnf install epel-release
+sudo dnf upgrade
+sudo dnf install snapd
+sudo systemctl enable --now snapd.socket
+sudo ln -s /var/lib/snapd/snap /snap
+sudo snap install core
+sudo snap refresh core
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
+# Install nginx
+sudo dnf install nginx
+sudo systemctl enable nginx
+sudo systemctl start nginx
